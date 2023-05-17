@@ -1,0 +1,8 @@
+{% for i in user_view %}
+
+<div>{{i.email}}</div>
+<div>{{i.username}}</div>
+<div>{{i.password}}</div>
+<div>{{i.gender}}</div>
+<div><a href="{{ url_for('viewprofile')}}"></a></div>
+{% endfor %}

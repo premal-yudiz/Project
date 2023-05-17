@@ -1,5 +1,5 @@
 from flask import Flask,redirect, render_template,request,url_for
-import datetime
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__, template_folder='templete')
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///db.sqlite3'
@@ -11,47 +11,48 @@ class User(db.Model):
    password=db.Column(db.Integer,nullable=False)
    gender=db.Column(db.String,nullable=False)
 class Useredit(db.Model):
-    useredit_id=db.Column(db.Integer,primary_key=True)
-    email=db.Column(db.String,nullable=False)
-    profile_pic=db.Column(db.String)   
-    bio=db.Column(db.String)
-    createdate=db.Column(db.DateTime)
+    useredit_id = db.Column(db.Integer,primary_key=True)
+    user_id=db.Column(db.ForeignKey('user.user_id'))
+    profile_pic=db.Column(db.String, default="/Users/yudiz/Desktop/Project/static/image/user.jpeg")   
+    bio=db.Column(db.String(255),default="i am whatapp using")
+    createdate=db.Column(db.DateTime,default=datetime.utcnow())  
+    user=db.relationship('User')
 class pending(db.Model):
-   pendind_id=db.Column(db.Integer,primary_key=True)
-   friend_id=db.Column(db.Integer,db.ForignKey('user.user_id'))
-   user_id=db.Column(db.Integer,db.ForignKey('user.user_id'))
+   pending_id=db.Column(db.Integer,primary_key=True)
+   friend_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
+   user_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
    user=db.relationship('User')
-
 class reject(db.Model):
    reject_id=db.Column(db.Integer,primary_key=True)
-   friends_id=db.Column(db.Integer,db.ForignKey('user.user_id'))
-   user_id=db.Column(db.Integer,db.ForignKey('user.user_id'))
+   friends_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
+   user_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
    user=db.relationship('User')
 class accept(db.Model):
    accept_id=db.Column(db.Integer,primary_key=True)
-   friend_id=db.Column(db.Integer,db.ForignKey('user.user_id'))
-   user_id=db.Column(db.Integer,db.ForignKey('user.user_id'))
+   friend_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
+   user_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
    user=db.relationship('User')
 class block(db.Model):
    block_id=db.Column(db.Integer,primary_key=True)
-   blockaccept_id=db.Column(db.Integer,db.ForignKey('accept.accept_id'))
+   blockaccept_id=db.Column(db.Integer,db.ForeignKey('accept.accept_id'))
    accept=db.relationship('accept')
-  
-
-
-
-
 @app.route('/',methods=['POST', 'GET'])
 def userregister():
-   if request.method == 'POST':
-           firstname=request.form['firstname']  
-           lastname=request.form['lastname'] 
-           email=request.form['email'] 
-           password=request.form['password'] 
-           user=User(firstname=firstname,lastname=lastname,email=email,password=password)
-           db.session.add(user)
-           db.session.commit()
-           return redirect(url_for('userlogin'))
+   if request.method == 'POST':  
+         username=request.form['username'] 
+         email=request.form['email'] 
+         password=request.form['password'] 
+         conpassword=request.form['con_password'] 
+         gender=request.form['gender']  
+         if password==conpassword:
+            user=User(username=username,email=email,password=password,gender=gender)
+            db.session.add(user)
+            obj=Useredit(user_id=user)
+            db.session.add(obj)
+            db.session.commit()
+            return redirect(url_for('userlogin'))
+         else:
+            return "wrong password"
    return render_template('Register.html')
 @app.route('/userlogin',methods=['POST', 'GET'])
 def userlogin():
@@ -72,6 +73,17 @@ def userchange():
 def userreset():
    if request.method == 'POST':
            
-    return render_template('ResetPassword.html')          
+    return render_template('ResetPassword.html')  
+@app.route('/viewprofile',methods=['POST','GET'])
+def viewprofile():
+   user_view=User.query.all()
+   return render_template('dashboard.html',user_view=user_view) 
+
+if __name__ == "__main__":     
+   app.run(debug=True) 
 with app.app_context():
     db.create_all()
+
+
+
+ 
