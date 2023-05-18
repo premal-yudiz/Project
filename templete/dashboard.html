@@ -1,8 +1,20 @@
-{% for i in user_view %}
-
-<div>{{i.email}}</div>
-<div>{{i.username}}</div>
-<div>{{i.password}}</div>
-<div>{{i.gender}}</div>
-<div><a href="{{ url_for('viewprofile')}}"></a></div>
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body><div>
+        <h2><hr> dashboard</hr></h2></div>
+        {% for i in user_view %}
+<img src="{{ url_for('static',filename='../static/user.jpg') }}"></img>
+<p>Username: {{ i.username}}</p><br/>
+<p>Genger: {{i.gender}}</p><br/>
 {% endfor %}
+{% for i in user_view1 %}
+<p>Bio: {{i.bio}}</p><br/>
+<p>Createdate: {{i.createdate}}</p><br/>
+<p>{% endfor %}</p><br/>
+
+
+
+    </body>
+</html>
