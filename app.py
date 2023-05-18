@@ -11,47 +11,39 @@ try:
     db = SQLAlchemy(app)
 except Exception as e:
     print(e)
-
 class User(db.Model):
-        user_id=db.Column(db.Integer,primary_key=True)
-        username=db.Column(db.String,nullable=False)  
-        email=db.Column(db.String,unique=True,nullable=False)
-        password=db.Column(db.String,nullable=False)
-        gender=db.Column(db.String,nullable=False)
-        child= db.relationship('User_profile',backref='parent',uselist=False)
+    user_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, unique=True, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    gender = db.Column(db.String, nullable=False)
+    child = db.relationship('User_profile', backref='parent', uselist=False)
 
-        
 class User_profile(db.Model):
-    user_profile_id=db.Column(db.Integer,primary_key=True)
-    # email=db.Column(db.String,nullable=False)
-    # profile_pic=db.Column(db.String)   
-    # bio=db.Column(db.String)
-    # created_at=db.Column(db.DateTime)
-    u_id = db.Column(db.ForeignKey('user.user_id')) 
+    user_profile_id = db.Column(db.Integer, primary_key=True)
+    bio = db.Column(db.String, default='I am SMedia user')
+    profile_pic = db.Column(db.String, default=r'C:\Users\kaman\OneDrive\Desktop\Smedia_copy\Profile_pic\profile-icon-png-908.png')
+    u_id = db.Column(db.ForeignKey('user.user_id'))
 
 
-# class Pending(db.Model):
-#    pendind_id=db.Column(db.Integer,primary_key=True)
-#    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-#    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-#    user=db.relationship('User')
+class Pending(db.Model):
+    pendind_id = db.Column(db.Integer, primary_key=True)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user = db.relationship('User', foreign_keys=[friend_id, user_id], backref='pending_relationship', primaryjoin="and_(Pending.friend_id==User.user_id, Pending.user_id==User.user_id)")
 
-# class Reject(db.Model):
-#    reject_id=db.Column(db.Integer,primary_key=True)
-#    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-#    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-#    user=db.relationship('User')
-# class Accept(db.Model):
-#    accept_id=db.Column(db.Integer,primary_key=True)
-#    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-#    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-#    user=db.relationship('User')
-# class Block(db.Model):
-#    block_id=db.Column(db.Integer,primary_key=True)
-#    blockaccept_id = db.Column(db.Integer, db.ForeignKey('accept.accept_id'))
-#    accept=db.relationship('accept')
-  
+class Reject(db.Model):
+    reject_id = db.Column(db.Integer, primary_key=True)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user = db.relationship('User', foreign_keys=[friend_id, user_id], backref='reject_relationship', primaryjoin="and_(Reject.friend_id==User.user_id, Reject.user_id==User.user_id)")
 
+class Accept(db.Model):
+    accept_id = db.Column(db.Integer, primary_key=True)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    blocked = db.Column(db.Boolean, default=False)
+    user = db.relationship('User', foreign_keys=[friend_id, user_id], backref='accept_relationship', primaryjoin="and_(Accept.friend_id==User.user_id, Accept.user_id==User.user_id)")
 
 
 
@@ -88,8 +80,7 @@ def userlogin():
             print(obj.password)
             if obj:
                 if obj.password == password:
-              
-                    session['email'] = obj.username
+                    session['name'] = obj.username
                     return redirect(url_for('home'))
                 else:
                     return "please enter correct password"
@@ -117,7 +108,12 @@ def userreset():
     return render_template('ResetPassword.html')          
 @app.route('/home',methods=['POST','GET'])
 def home():
-    return render_template('home1.html')
+    name = session.get('name')
+    return render_template('home.html',name=name)
+@app.route('/sign_out', methods=["GET", "POST"])
+def sign_out():
+    del session['name']
+    return redirect(url_for('userlogin'))
 
 if __name__ == "__main__":
     with app.app_context():
