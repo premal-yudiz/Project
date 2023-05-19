@@ -5,7 +5,8 @@
     <body><div>
         <h2><hr> dashboard</hr></h2></div>
         {% for i in user_view %}
-<img src="{{ url_for('static',filename='../static/user.jpg') }}"></img>
+<img src="{{ url_for('static',filename='../static/i.profile_pic') }}"></img>
+{{i.profile_pic}}
 <p>Username: {{ i.username}}</p><br/>
 <p>Genger: {{i.gender}}</p><br/>
 {% endfor %}

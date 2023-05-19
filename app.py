@@ -1,8 +1,11 @@
 from flask import Flask,redirect, render_template,request,url_for,session
 from datetime import datetime
 import os
+from os.path import join
 from flask_mail import Mail,Message
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
+UPLOAD_FOLDER='/static/image/'
 app = Flask(__name__, template_folder='templete')
 app.config['SECRET_KEY'] = b'r3t058rf3409tyh2g-rwigGWRIGh[g'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -12,8 +15,8 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = os.getenv('USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('PASSWORD')
 mail = Mail(app)
-
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///db.sqlite3'
+app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
 db=SQLAlchemy(app)
 class User(db.Model):
    user_id=db.Column(db.Integer,primary_key=True)
@@ -131,18 +134,19 @@ def viewprofile():
    return render_template('dash.html',user_view=user_view,user_view1=user_view1) 
 @app.route('/home',methods=['POST', 'GET'])
 def home():
-    
-   return render_template('home.html')  
-@app.route('/editprofile',methods=['POST','GET'])
-def editprofile():
-#  if request.method=='POST':
-#    username=request.form['username'] 
-#    profile_pic=request.file['profile_pic']
-#    bio=request.form['bio']
-#    obj = User.query.filter_by(email=email,password=password).first()
-
-
- return render_template('editprofile.html')
+   user_view=User.query.all()
+   return render_template('home.html',user_view=user_view)  
+@app.route('/editprofile/<id>', methods=['POST','GET'])
+def editprofile(id):
+   user = Userprofile.query.filter_by(user_id=int(id)).first()
+   if request.method=='POST':
+      user.profile_pic = request.files.get('profile_pic')
+      user.bio = request.form.get('bio')     
+      saver=request.files['profile_pic']
+      filename=secure_filename(saver.filename)
+      saver.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+      db.session.commit()
+   return render_template('editprofile.html', user=user)
 if __name__ == "__main__":     
    app.run(debug=True) 
 with app.app_context():
