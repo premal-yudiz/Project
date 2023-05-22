@@ -81,6 +81,7 @@ def userlogin():
             if obj:
                 if obj.password == password:
                     session['name'] = obj.username
+                    session['s_id'] = obj.user_id
                     return redirect(url_for('home'))
                 else:
                     return "please enter correct password"
@@ -110,10 +111,32 @@ def userreset():
 def home():
     name = session.get('name')
     return render_template('home.html',name=name)
+
 @app.route('/sign_out', methods=["GET", "POST"])
 def sign_out():
     del session['name']
     return redirect(url_for('userlogin'))
+
+@app.route('/search_friend', methods=["GET", "POST"])
+def search_friend():
+    user = User.query.all()
+    s_id = session['s_id']
+
+    for u in user:
+        print("username",u.username)
+        if u.username==request.form['search_friend']:
+            if u.user_id != s_id:
+            # print("user_iddddddd",s_id)
+            # print("friend_iddddddd",u.user_id)
+                user=Pending(friend_id=u.user_id,user_id = s_id)
+                db.session.add(user)
+                db.session.commit()
+            else:
+                return "You cannot send request to your self!"
+        # else:
+        #     return "user not found"
+    return redirect(url_for('home'))
+
 
 if __name__ == "__main__":
     with app.app_context():
