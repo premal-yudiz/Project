@@ -31,25 +31,25 @@ class Userprofile(db.Model):
    bio=db.Column(db.String(255), default="i am using whatapps")
    createdate=db.Column(db.DateTime, default=datetime.utcnow)  
    user=db.relationship('User')
-# class pending(db.Model):
-#    pending_id=db.Column(db.Integer,primary_key=True)
-#    friend_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
-#    user_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
-#    user=db.relationship('User')
-# class reject(db.Model):
-#    reject_id=db.Column(db.Integer,primary_key=True)
-#    friends_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
-#    user_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
-#    user=db.relationship('User')
-# class accept(db.Model):
-#    accept_id=db.Column(db.Integer,primary_key=True)
-#    friend_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
-#    user_id=db.Column(db.Integer,db.ForeignKey('user.user_id'))
-#    user=db.relationship('User')
-# class block(db.Model):
-#    block_id=db.Column(db.Integer,primary_key=True)
-#    blockaccept_id=db.Column(db.Integer,db.ForeignKey('accept.accept_id'))
-#    accept=db.relationship('accept')
+class Pending(db.Model):
+    pendind_id = db.Column(db.Integer, primary_key=True)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user = db.relationship('User', foreign_keys=[friend_id, user_id],primaryjoin="and_(Pending.friend_id==User.user_id, Pending.user_id==User.user_id)")
+
+class Reject(db.Model):
+    reject_id = db.Column(db.Integer, primary_key=True)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user = db.relationship('User', foreign_keys=[friend_id, user_id],primaryjoin="and_(Reject.friend_id==User.user_id, Reject.user_id==User.user_id)")
+
+class Accept(db.Model):
+    accept_id = db.Column(db.Integer, primary_key=True)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    blocked = db.Column(db.Boolean, default=False)
+    user = db.relationship('User', foreign_keys=[friend_id, user_id], primaryjoin="and_(Accept.friend_id==User.user_id, Accept.user_id==User.user_id)")
+
 @app.route('/',methods=['POST', 'GET'])
 def userregister():
    if request.method == 'POST':  
