@@ -69,10 +69,10 @@ body {
 	min-width: 140px;
 }
 .signup-form .btn:hover, .signup-form .btn:focus {
-	background: #0963a4 !important;
+	background:#0963a4 !important;
 }
 .signup-form a {
-	color: #0963a4;	
+	color:#0963a4;	
 	text-decoration: underline;
 }
 .signup-form a:hover {
@@ -103,10 +103,20 @@ body {
 <body>
 <div class="signup-form">
     <form action="" method="post">
-		<h2>FaceBook Changepassword Form </h2>
-		<p>.</p>
+		<h2>FaceBook Register Form </h2>
+		<p>Please fill in this form to create an account!</p>
 		<hr>
-		<div class="form-group">
+        <div class="form-group">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text">
+						<span class="fa fa-user"></span>
+					</span>                    
+				</div>
+				<input type="text" class="form-control" name="username" placeholder="Username"  required="required">
+			</div>
+        </div>
+        <div class="form-group">
 			<div class="input-group">
 				<div class="input-group-prepend">
 					<span class="input-group-text">
@@ -116,8 +126,6 @@ body {
 				<input type="email" class="form-control" name="email" placeholder="Email Address" required="required">
 			</div>
         </div>
-        
-        
 		<div class="form-group">
 			<div class="input-group">
 				<div class="input-group-prepend">
@@ -125,35 +133,41 @@ body {
 						<i class="fa fa-lock"></i>
 					</span>                    
 				</div>
-				<input type="password" class="form-control" name="Current_password" placeholder=" Current Password" required="required">
+				<input type="password" class="form-control" name="password" placeholder="Password" required="required">
 			</div>
         </div>
+		<div class="form-group">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text">
+						<i class="fa fa-lock"></i>
+					</span>                    
+				</div>
+				<input type="password" class="form-control" name="con_password" placeholder="Password" required="required">
+			</div>
+        </div>
+		
         <div class="form-group">
 			<div class="input-group">
 				<div class="input-group-prepend">
 					<span class="input-group-text">
-						<i class="fa fa-lock"></i>
+						<span class="fa fa-user"></span>
 					</span>                    
 				</div>
-				<input type="password" class="form-control" name="New_password" placeholder=" New Password" required="required">
+                <select name="gender">
+                    <option value="">gender</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other</option>
+                    
+                  </select>
 			</div>
         </div>
 		<div class="form-group">
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text">
-						<i class="fa fa-lock"></i>
-						<i class="fa fa-check"></i>
-					</span>                    
-				</div>
-				<input type="password" class="form-control" name="retype_password" placeholder="Retype - New Password" required="required">
-			</div>
-        </div>
-        
-		<div class="form-group">
-            <button type="submit" class="btn btn-primary btn-lg">Save Change</button>
+            <button type="submit" class="btn btn-primary btn-lg">Register</button>
         </div>
     </form>
+	<div class="text-center">Already have an account? <a href="{{ url_for('userlogin') }}">Login here</a></div>
 </div>
 </body>
 </html>
