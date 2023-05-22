@@ -5,15 +5,15 @@ from os.path import join
 from flask_mail import Mail,Message
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
-UPLOAD_FOLDER='/static/image/'
+UPLOAD_FOLDER='static/'
 app = Flask(__name__, template_folder='templete')
 app.config['SECRET_KEY'] = b'r3t058rf3409tyh2g-rwigGWRIGh[g'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_TLS'] = False  
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = os.getenv('USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('PASSWORD')
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = os.environ.get('USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('PASSWORD')
 mail = Mail(app)
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///db.sqlite3'
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
@@ -62,7 +62,7 @@ def userregister():
          user=User(username=username,email=email,password=password,gender=gender)
          db.session.add(user)
          db.session.commit()
-         default_image_path ='static/image/user.jpg'
+         default_image_path ='static/user.jpg'
          edit = Userprofile(user_id=user.user_id, profile_pic=default_image_path)
          db.session.add(edit)
          db.session.commit()
@@ -74,9 +74,11 @@ def userregister():
 def userlogin():
    if request.method == 'POST':
          email = request.form['email']
+         session['login']= email
          password = request.form['password']
          obj = User.query.filter_by(email=email,password=password).first()
          if obj:
+               session['name']=obj.username
                return redirect(url_for('home'))   
          else:
             return "please enter valid email and password"   
@@ -129,22 +131,31 @@ def userreset():
     return render_template('ResetPassword.html')  
 @app.route('/viewprofile',methods=['POST','GET'])
 def viewprofile():
-   user_view=User.query.all()
-   user_view1=Userprofile.query.all()
-   return render_template('dash.html',user_view=user_view,user_view1=user_view1) 
+   email=session['login']
+   user_view=guests=db.session.query(User,Userprofile).filter(User.email==email).filter(User.user_id == Userprofile.user_id).first()
+   data=dict()
+   data['profile_pic']=user_view.Userprofile.profile_pic   
+   data['bio']=user_view.Userprofile.bio
+   data['user_id']=user_view.User.user_id
+   data['username']=user_view.User.username
+   data['gender']=user_view.User.gender
+   data['createdate']=user_view.Userprofile.createdate
+ 
+   return render_template('dash.html',user_view=data) 
 @app.route('/home',methods=['POST', 'GET'])
 def home():
    user_view=User.query.all()
-   return render_template('home.html',user_view=user_view)  
+   name=session.get('name')
+   return render_template('home.html',name=name)  
 @app.route('/editprofile/<id>', methods=['POST','GET'])
 def editprofile(id):
    user = Userprofile.query.filter_by(user_id=int(id)).first()
    if request.method=='POST':
-      user.profile_pic = request.files.get('profile_pic')
-      user.bio = request.form.get('bio')     
-      saver=request.files['profile_pic']
-      filename=secure_filename(saver.filename)
-      saver.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+      user.profile_pic = request.files['profile_pic']
+      user.bio = request.form['bio']     
+      filename=secure_filename(user.profile_pic.filename)
+      user.profile_pic.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+      user.profile_pic=app.config['UPLOAD_FOLDER']+filename
       db.session.commit()
    return render_template('editprofile.html', user=user)
 if __name__ == "__main__":     

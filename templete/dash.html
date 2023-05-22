@@ -112,18 +112,15 @@ body {
                   <div class="input-group-prepend">
 					
 				</div>
-                {% for i in user_view %}
-                <img src="{{ url_for('static',filename='../static/user.jpg') }}"></img>
-                <p>Username: {{ i.username }}</p><br/>
-                <p>Gender: {{ i.gender }}</p><br/>
-                {% endfor %}
-                {% for i in user_view1 %}
-                <p>Bio: {{ i.bio }}</p><br/>
-                <p>Createdate: {{ i.createdate }}</p><br/>
+				<img src={{user_view.profile_pic}} width="50%" height="50%"><img><br> 
+				<p>Username: {{user_view.username }}</p>
+                <p>Gender: {{user_view.gender }}</p><br/>          
+				<p>Bio: {{ user_view.bio }}</p><br/>
+                <p>Createdate: {{user_view.createdate }}</p><br/>
                 <div class="form-group">
-                 <a href="{{ url_for('editprofile', id = i.user_id) }}">Update Profile</button></a>
+                 <a href="{{ url_for('editprofile', id = user_view.user_id) }}">Update Profile</button></a>
                 </div>
-				{% endfor %}
+				
 			</div>
         </div>
 		
