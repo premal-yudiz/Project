@@ -13,7 +13,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <style>
         body {
-            color: #fff;
+            color: #b67777;
             background: #f1f5f6;
             font-family: 'Roboto', sans-serif;
         }
@@ -91,9 +91,10 @@
             background: #0963a4 !important;
         }
         
-        .signup-form a {
-            color: #fff;
-            text-decoration: underline;
+        .signup-form a,
+        .text-center {
+            color: #4b43bd;
+            text-decoration: none;
         }
         
         .signup-form a:hover {
@@ -168,8 +169,11 @@
                 <button type="submit" class="btn btn-primary btn-lg">Login</button>
             </div>
         </form>
+        <div class="text-center">Forgot Password? <a href="{{url_for('userforget')}}">Send Link</a></div>
+        <div class="text-center">New User? <a href="{{url_for('userregister')}}">  &nbsp Register here</a></div>
 
     </div>
+
 </body>
 
 </html>
