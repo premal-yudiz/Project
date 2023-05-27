@@ -5,6 +5,7 @@ from os.path import join
 from flask_mail import Mail,Message
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
+from functools import wraps
 UPLOAD_FOLDER='static/'
 app = Flask(__name__)
 app.config['SECRET_KEY'] = b'r3t058rf3409tyh2g-rwigGWRIGh[g'
@@ -55,6 +56,13 @@ class Accept(db.Model):
     blocked = db.Column(db.Boolean, default=False)
     user = db.relationship('User', foreign_keys=[friend_id, user_id], backref='accept_relationship', primaryjoin="and_(Accept.friend_id==User.user_id, Accept.user_id==User.user_id)")
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('userlogin'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/',methods=['POST', 'GET'])
 def userlogin():
@@ -71,6 +79,7 @@ def userlogin():
                     
                     session['name'] = obj.username
                     session['s_id'] = obj.user_id
+                    session['logged_in'] = True
                     return redirect(url_for('home'))
                 else:
                     return "please enter correct password"
@@ -168,8 +177,9 @@ def userreset():
            
     return render_template('ResetPassword.html')  
 @app.route('/viewprofile',methods=['POST','GET'])
+@login_required
 def viewprofile():
-   email=session['login']
+   email=session.get('login')
    user_view=guests=db.session.query(User,User_profile).filter(User.email==email).filter(User.user_id == User_profile.u_id).first()
    data=dict()
    data['profile_pic']=user_view.User_profile.profile_pic   
@@ -182,12 +192,15 @@ def viewprofile():
 
 @app.route('/home',methods=['POST', 'GET'])
 def home():
-   user_view=User.query.all()
-   name=session.get('name')
-   return render_template('home.html',name=name)  
+    if 'name' in session:
+        name = session['name']
+        return render_template('home.html', name=name)
+    else:
+        return redirect(url_for('userlogin'))
 
 
 @app.route('/editprofile', methods=['POST','GET'])
+@login_required
 def editprofile():
    id=session['s_id']
    user = User_profile.query.filter_by(u_id=int(id)).first()
@@ -202,9 +215,11 @@ def editprofile():
    return render_template('editprofile.html', user=user)
 
 @app.route('/sign_out', methods=["GET", "POST"])
+
 def sign_out():
-    del session['name']
-    return redirect(url_for('userlogin'))
+    session.clear()  # Clear the session data
+    flash('You have been logged out.', 'success')  # Optional: Display a logout message
+    return redirect('/')
 
 # @app.route('/search_friend', methods=["GET", "POST"])
 # def search_friend():
@@ -231,6 +246,7 @@ def sign_out():
 #         return redirect(url_for('home'))
     
 @app.route('/search_friend', methods=["GET", "POST"])
+@login_required
 def search_friend():
     user = User.query.all()
     s_id = session['s_id']
@@ -255,6 +271,7 @@ def search_friend():
     return "This page is accessible via a form submission only."
     
 @app.route('/pending_list')
+@login_required
 def pending_list():
    logged_user=session.get('s_id')
    p_list =Pending.query.filter_by(friend_id=logged_user)
@@ -277,6 +294,7 @@ def pending_list():
        return render_template('home.html')
 
 @app.route('/accept_req/<id>', methods=["GET","POST"])
+@login_required
 def accept_req(id):
     logged_user=session.get('s_id') 
     if logged_user:
@@ -299,6 +317,7 @@ def accept_req(id):
 
 
 @app.route('/accept_list')
+@login_required
 def Acceptfriend_list():
    logged_user = session.get('s_id')
    a_list = Accept.query.filter_by(friend_id=logged_user)
@@ -326,6 +345,7 @@ def Acceptfriend_list():
                 
 
 @app.route('/reject_req/<id>', methods=["GET","POST"])
+@login_required
 def reject_req(id):
     # reject = Pending.query.get(id)
     # try:
@@ -343,6 +363,7 @@ def reject_req(id):
     return "hello"
 
 @app.route('/show_user')
+@login_required
 def show_user():
     # # u_list =User.query.all()
     # for u in u_list:
@@ -364,6 +385,7 @@ def redirect_home():
     return redirect(url_for('dashobrd.html')) 
 
 @app.route('/remove_friend/<id>')
+@login_required
 def remove_friend(id):
     logged_user=session.get('s_id') 
     remove_frd = Accept.query.filter_by(user_id=id,friend_id=logged_user).delete()
@@ -376,6 +398,7 @@ def remove_friend(id):
 
 
 @app.route('/non_friend', methods=["GET", "POST"])
+@login_required
 def non_friend():
     user = User.query.all()
     s_id = session['s_id']
@@ -441,6 +464,7 @@ def send_req():
 
 
 @app.route('/sent_req/<id>', methods=["GET","POST"])
+@login_required
 def sent_req(id):  
     logged_user = session['s_id']
     try:
@@ -458,4 +482,4 @@ def sent_req(id):
 with app.app_context():
     db.create_all()
 if __name__ == "__main__":     
-   app.run(debug=True, port = 8000) 
+   app.run(debug=True) 

@@ -129,6 +129,11 @@
 </head>
 
 <body>
+    <h3 style="color:red;">{{b}} {% with messages = get_flashed_messages() %} {% if messages %} {% for message
+        in messages %}
+        <p>{{ message }}</p>
+        {% endfor %} {% endif %} {% endwith %}
+    </h3>
     <div class="signup-form">
         <form action="" method="post">
             <h2>SMedia Login Form </h2>
