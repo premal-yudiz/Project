@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Accept Friend List</h1>
+    <table border="1">
+
+        <th>Accept</th>
+        <th>Profile</th>
+
+        </tr>
+        {% for uid, user in requested_person.items() %}
+        <tr>
+            <td>{{ user['username'] }}</td>
+            <td style="height:100%;aspect-ratio: 1/1; justify-content: center;"> <img src="{{ user['profile_pic'] }}" alt="Profile Picture" style="border-radius: 50%; object-fit: cover;aspect-ratio: 1/1;width: 50%; "></td>
+        </tr>
+        {% endfor%}
+
+
+
+
+</body>
+
+</html>

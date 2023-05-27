@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Search Friends</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        
+        #search-bar {
+            width: 300px;
+            height: 30px;
+            padding: 5px;
+            font-size: 16px;
+        }
+        
+        #search-results {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+        
+        #search-results li {
+            cursor: pointer;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Search Friends</h1>
+    <form id="search-form">
+        <input type="text" id="search-bar" name="search" placeholder="Search Friends...">
+    </form>
+    <ul id="search-results"></ul>
+
+    <script>
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-bar');
+        const searchResults = document.getElementById('search-results');
+
+        const friends = [
+            'John',
+            'Jane',
+            'Mark',
+            'Sarah',
+            'David',
+            'Emily',
+            'Michael',
+            'Olivia',
+            'James',
+            'Emma'
+        ];
+
+        const searchFriends = () => {
+            const searchText = searchInput.value.toLowerCase();
+            const filteredFriends = friends.filter((friend) => {
+                return friend.toLowerCase().includes(searchText);
+            });
+
+            displayResults(filteredFriends);
+        };
+
+        const displayResults = (results) => {
+            searchResults.innerHTML = '';
+
+            if (results.length === 0) {
+                const noResultsItem = document.createElement('li');
+                noResultsItem.textContent = 'No results found.';
+                searchResults.appendChild(noResultsItem);
+            } else {
+                results.forEach((result) => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = result;
+                    searchResults.appendChild(listItem);
+                });
+            }
+        };
+
+        searchForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent form submission
+            searchFriends();
+        });
+
+        searchInput.addEventListener('input', searchFriends);
+    </script>
+</body>
+
+</html>

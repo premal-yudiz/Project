@@ -1,4 +1,4 @@
-from flask import Flask,redirect, render_template,request,url_for,session
+from flask import Flask,redirect, render_template,request,url_for,session,flash
 from datetime import datetime
 import os
 from os.path import join
@@ -62,16 +62,15 @@ def userlogin():
             email = request.form['email']
             session['login'] = email
             password = request.form['password']
+            
             print("pasdsdsffsfsdf1",password)
             obj = User.query.filter_by(email=email).first()
             #   user = User.query.filter_by(email=email)
-            print(obj.password)
             if obj:
                 if obj.password == password:
                     
                     session['name'] = obj.username
                     session['s_id'] = obj.user_id
-                    print("+++++++++++++++++++++++++++",session['s_id'] )
                     return redirect(url_for('home'))
                 else:
                     return "please enter correct password"
@@ -89,14 +88,22 @@ def userregister():
            confirm_password = request.form['confirm_password']
            gender=request.form['gender']
            if password == confirm_password:
-                user=User(username=username,email=email,password=password,gender=gender)
-                db.session.add(user)
-                db.session.commit()
-                default_image_path = 'static/user.jpg'
-                obj = User_profile(u_id=user.user_id,profile_pic=default_image_path)
-                db.session.add(obj)
-                db.session.commit()
-                return redirect(url_for('userlogin'))
+                try:
+                    obj = User.query.filter_by(email=email).first()
+                    if obj == None:
+
+                        user=User(username=username,email=email,password=password,gender=gender)
+                        db.session.add(user)
+                        db.session.commit()
+                        default_image_path = 'static/user.jpg'
+                        obj = User_profile(u_id=user.user_id,profile_pic=default_image_path)
+                        db.session.add(obj)
+                        db.session.commit()
+                        return redirect(url_for('userlogin'))
+                    else:
+                        return "this email is already registered"
+                except Exception as e:
+                    print("error is ",e)
            else:
               return "wrong password"
    else:
@@ -119,6 +126,8 @@ def userforget():
     
 @app.route('/userchange',methods=['POST', 'GET'])
 def userchange():
+   logged_user=session.get('login')
+   
    if request.method=='POST':
       email=request.form['email']
       oldpassword=request.form['Current_password']
@@ -126,17 +135,25 @@ def userchange():
       conformpassword=request.form['retype_password']
       resetpassword = User.query.filter_by(email=email, password=oldpassword).first()
       if resetpassword != None:
-            if newpassword == conformpassword:
-                resetpassword.password = newpassword
-                db.session.commit()   
-                return redirect(url_for('userlogin'))
-            else:
-               return render_template('ChangePassword.html')
-   return render_template('ChangePassword.html')
+            
+                if newpassword == conformpassword:
+                    resetpassword.password = newpassword
+                    db.session.commit()   
+                    return redirect(url_for('userlogin'))
+                else:
+                    flash("Please Enter Same Password")
+                    return render_template('ChangePassword.html')
+      else:
+          flash("Please Enter Valid Password")
+          return render_template('ChangePassword.html',logged_user=logged_user)
+
+         
+
+   return render_template('ChangePassword.html',    logged_user=logged_user)
 @app.route('/resetpassword',methods=['POST', 'GET'])
 def userreset():
     if request.method=='POST':
-      mail = session['email']
+    #   mail = session['email']
       newpassword=request.form['password'] 
       confrompassword=request.form['confirm_password']  
       if newpassword==confrompassword:
@@ -189,34 +206,57 @@ def sign_out():
     del session['name']
     return redirect(url_for('userlogin'))
 
+# @app.route('/search_friend', methods=["GET", "POST"])
+# def search_friend():
+#     user = User.query.all()
+#     s_id = session['s_id']
+#     if request.method == 'POST':
+
+#         for u in user:
+#             print("username",u.username)
+#             if u.username==request.form['search_friend']:
+#                 if u.user_id != s_id:
+#                 # print("user_iddddddd",s_id)
+#                 # print("friend_iddddddd",u.user_id)
+#                     user=Pending(friend_id=u.user_id,user_id = s_id)
+#                     db.session.add(user)
+#                     db.session.commit()
+#                 else:
+#                     return "You cannot send request to your self!"
+#             # else:
+#             #     return "user not found"
+            
+#         return redirect(url_for('home'))
+#     else:
+#         return redirect(url_for('home'))
+    
 @app.route('/search_friend', methods=["GET", "POST"])
 def search_friend():
     user = User.query.all()
     s_id = session['s_id']
+    
     if request.method == 'POST':
-
         for u in user:
-            print("username",u.username)
-            if u.username==request.form['search_friend']:
+            uid =u.user_id
+            print("username", u.username)
+            if u.username == request.form['search_friend']:
                 if u.user_id != s_id:
-                # print("user_iddddddd",s_id)
-                # print("friend_iddddddd",u.user_id)
-                    user=Pending(friend_id=u.user_id,user_id = s_id)
-                    db.session.add(user)
+                    # Create a new pending request
+                    pending_request = Pending(friend_id=u.user_id, user_id=s_id)
+                    db.session.add(pending_request)
                     db.session.commit()
+                    return redirect(url_for('send_req'))
                 else:
-                    return "You cannot send request to your self!"
-            # else:
-            #     return "user not found"
-        return redirect(url_for('home'))
-    else:
-        return redirect(url_for('home'))
+                    return "You cannot send a request to yourself!"
+        # User not found
+        return "User not found"
+  
+    # Handle GET request method if needed
+    return "This page is accessible via a form submission only."
     
 @app.route('/pending_list')
 def pending_list():
    logged_user=session.get('s_id')
-   # user = User.query.get(logged_user).user_id
-   # user.user_id
    p_list =Pending.query.filter_by(friend_id=logged_user)
    
    # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",p_list.first())
@@ -227,25 +267,25 @@ def pending_list():
         # print("uid", uid)
         uname = User.query.get(uid).username
         # print("Uname",uname)
-        requested_person[uid] = uname
-        # print("-------------------",requested_person)
-        # print(requested_person.uname) k
-#    for uid, uname in requested_person.items():
-#     print("User ID:", uid)
-#     print("Username:", uname)    
+        requested_person[uid] = uname  
 
    if requested_person:
-        print("!!!!!!!!!!!!!!!!!!!!!",requested_persond)
-        return render_template('pending_list.html',pending_users=p_list,requested_person=requested_person)
+        print("!!!!!!!!!!!!!!!!!!!!!")
+        return render_template('pending_list1.html',pending_users=p_list,requested_person=requested_person)
    else:
-       return "no pending list"
+       flash("no pending list")
+       return render_template('home.html')
 
 @app.route('/accept_req/<id>', methods=["GET","POST"])
 def accept_req(id):
     logged_user=session.get('s_id') 
     if logged_user:
         user=Accept(friend_id=id,user_id=logged_user)
-        db.session.add(user)     
+        user1 = Accept(user_id=id, friend_id=logged_user)
+
+        db.session.add(user)   
+        db.session.add(user1)
+
         db.session.commit()
     pendding = Pending.query.filter_by(user_id=id,friend_id=logged_user).delete()
     print("idididididididi",id) 
@@ -256,7 +296,34 @@ def accept_req(id):
         return redirect(url_for('pending_list'))
     return "hello"
 
-    
+
+
+@app.route('/accept_list')
+def Acceptfriend_list():
+   logged_user = session.get('s_id')
+   a_list = Accept.query.filter_by(friend_id=logged_user)
+   user_view = guests = db.session.query(User, User_profile).filter(User.user_id == User_profile.u_id).first()
+   data = dict()
+   data['profile_pic'] = user_view.User_profile.profile_pic
+
+   requested_person = {}
+   for p in a_list:
+        uid = p.user_id
+        uname = User.query.get(uid).username
+       
+        u_gender = User.query.get(uid).gender
+
+        profile_pic = User_profile.query.get(uid).profile_pic
+        # Retrieve the profile picture for the user
+        user_bio = User_profile.query.get(uid).bio
+        # Retrieve the profile picture for the user
+        requested_person[uid] = {'username': uname, 'profile_pic': profile_pic,'bio':user_bio,'gender':u_gender}
+        # print("~~~~~~~~~~~~~~~~~~~~~~",requested_person)
+
+   return render_template('index.html', pending_users=a_list, requested_person=requested_person, user_view=data)
+
+
+                
 
 @app.route('/reject_req/<id>', methods=["GET","POST"])
 def reject_req(id):
@@ -277,12 +344,118 @@ def reject_req(id):
 
 @app.route('/show_user')
 def show_user():
-    u_list =User.query.all()
-    for u in u_list:
-        print("SMedia User..", u.username)
-            
+    # # u_list =User.query.all()
+    # for u in u_list:
+    #     print("SMedia User..", u.username)
+    # user_view1 = guests = db.session.query(User, User_profile).filter(
+    #     User.user_id == User_profile.u_id).first()
+    # print-("user----------------------",user_view1)
+    logged_user = session.get('s_id')
+    login = User.query.filter_by(user_id = logged_user)
+    accept = Accept.query.filter_by(friend_id = logged_user)
+    print("acerlkgmgngnfnfnfgf----------",accept)
+    query = Accept.query.filter(
+        db.or_(Accept.user_id == logged_user, Accept.friend == logged_user))
+    # users = db.session.query(User, Accept).filter(User.user_id == Accept.user_id)
+    users = User.query.all()
+
+@app.route('/redirect/<id>')
+def redirect_home():
+    return redirect(url_for('dashobrd.html')) 
+
+@app.route('/remove_friend/<id>')
+def remove_friend(id):
+    logged_user=session.get('s_id') 
+    remove_frd = Accept.query.filter_by(user_id=id,friend_id=logged_user).delete()
+    remove_frd = Accept.query.filter_by(friend_id=id,user_id=logged_user).delete()
+
+    if remove_frd:
+        db.session.commit()
+        return redirect(url_for('Acceptfriend_list'))
+    return "hello"
+
+
+@app.route('/non_friend', methods=["GET", "POST"])
+def non_friend():
+    user = User.query.all()
+    s_id = session['s_id']
+    name=session.get('name')
+
+    
+    if request.method == 'POST':
+        search_query = request.form['search_friend']
+        non_friends = []
+
+        for u in user:
+            if search_query == name:
+                return "You cannot send a request to yourself!"
+            elif u.username != search_query and u.user_id != s_id:
+                non_friends.append(u)
+
+        if non_friends:
+            return render_template('non_friends.html', non_friends=non_friends)
+        else:
+            return "No non-friend users found."
+
+    return render_template('search_friend.html')
+
+@app.route('/send_req', methods=["GET", "POST"])
+def send_req():
+    all_user = User.query.all() # want to ignore/remove objects from all_user which are in a_list = Accept.query.filter_by(friend_id=logged_user)
+    logged_user = session['s_id']
+    user = User.query.get(logged_user)
+    # name=session.get('name')
+    a_list = Accept.query.filter_by(friend_id=logged_user)
+    p_list = Pending.query.filter_by(user_id=logged_user)
+    for p in p_list:
+     print("++++++++++++++++++++++++++++++",p.friend_id)
+
+    all_user = User.query.all()
+    a_list_ids = set(accept.user_id for accept in a_list)
+    a_pending = set(pending.friend_id for pending in p_list)
+    
+
+    user_view = guests = db.session.query(User, User_profile).filter(User.user_id == User_profile.u_id).first()
+    data = dict()
+    filtered_users = []
+    for user in all_user:
+        if user.user_id not in a_list_ids and user.user_id not in a_pending and user.user_id!=logged_user:
+            filtered_users.append(user)
+            # print(user.user_id)
+            uname=User.query.get(user.user_id).username
+            # print(uname)
+  
         
+    requested_person = {}
+    for p in filtered_users:
+        uid = p.user_id
+        uname = User.query.get(uid).username
+        u_gender = User.query.get(uid).gender
+        profile_pic = User_profile.query.get(uid).profile_pic
+        # Retrieve the profile picture for the user
+        user_bio = User_profile.query.get(uid).bio
+        # Retrieve the profile picture for the user
+        requested_person[uid] = {'username': uname, 'profile_pic': profile_pic,'bio':user_bio,'gender':u_gender}
+        # print("~~~~~~~~~~~~~~~~~~~~~~",requested_person)
+    return render_template('send_req.html',requested_person=requested_person)
+
+
+@app.route('/sent_req/<id>', methods=["GET","POST"])
+def sent_req(id):  
+    logged_user = session['s_id']
+    try:
+        pending_request = Pending(friend_id=id, user_id=logged_user)
+        db.session.add(pending_request)
+        db.session.commit()
+        return redirect(url_for('send_req'))  
+    except Exception as e:
+        print(e)
+
+
+
+
+
 with app.app_context():
     db.create_all()
 if __name__ == "__main__":     
-   app.run(debug=True) 
+   app.run(debug=True, port = 8000) 

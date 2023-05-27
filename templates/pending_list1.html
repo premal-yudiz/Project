@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Pending Friend List</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,300,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css')}}"> -->
+
+</head>
+
+<body>
+    <div>
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="{{url_for('home')}}">SMedia</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="{{url_for('home')}}">Home</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Profile
+        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/viewprofile">view Profile</a></li>
+                            <li>
+                                <a href="{{ url_for('editprofile')}} ">Edit Profile</a></li>
+                            <li><a href="{{ url_for('userchange')}} ">Change Password</a></li>
+                            <!-- <li><a href="{{ url_for('userchange')}} ">Change Password</a></li> -->
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="/pending_list">Friend List</a>
+                    </li>
+                    <li><a href="/accept_list">My Friends</a></li>
+                    <li>
+                        <a href="/send_req">Make Friend</a>
+                    </li>
+
+                </ul>
+                <ul class="nav navbar-nav navbar-right ">
+                    <!-- <li><a href="# "><span class="glyphicon glyphicon-user "></span> Sign Up</a></li> -->
+                    <li>
+                        <a href=" {{ url_for( 'sign_out') }} "><span class="glyphicon glyphicon-log-in "></span> Logout</a></li>
+                </ul>
+                <form class="navbar-form navbar-left " action="/search_friend" method="post">
+                    <div class="input-group ">
+
+                        <input type="text " class="form-control " placeholder="Search SMedia User" name="search_friend">
+                        <div class="input-group-btn ">
+                            <button class="btn btn-default " type="submit">
+            <i class="glyphicon glyphicon-search "></i>
+          </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </nav>
+    </div>
+
+    <section class="ftco-section ">
+        <div class="container ">
+            <div class="row justify-content-center ">
+                <div class="col-md-6 text-center mb-5 ">
+                    <h2 class="heading-section ">Friend List</h2>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-md-12 ">
+                    <div class="table-wrap ">
+                        <table class="table table-responsive-xl ">
+                            <thead>
+                                <tr>
+                                    <!-- <th>&nbsp;</th> -->
+                                    <th>USername</th>
+                                    <th>accept</th>
+                                    <th>reject</th>
+                                    <th>&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- <tr class="alert " role="alert "> -->
+                                <!-- <td>
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox " checked>
+										  <span class="checkmark "></span>
+										</label>
+                                    </td> -->
+                                <!-- <td class="d-flex align-items-center ">
+                                    <div class="img " style="background-image: url({{ url_for( 'static',filename='userimages.jpg' )}}); "></div>
+                                    <div class="pl-3 email ">
+                                        <span>markotto@email.com</span>
+                                        <span>Added: 01/03/2020</span>
+                                    </div>
+                                </td>
+                                <td>Markotto89</td>
+                                <td class="status "><span class="active ">Active</span></td>
+                                <td>
+                                    <button type="button " class="close " data-dismiss="alert " aria-label="Close ">
+				            	<span aria-hidden="true "><i class="fa fa-close "></i></span>
+				          	</button>
+                                </td> -->
+                                </tr>
+                                {% for uid,uname in requested_person.items() %}
+
+                                <tr class="alert " role="alert ">
+                                    <!-- <td>
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox ">
+										  <span class="checkmark "></span>
+										</label>
+                                    </td> -->
+                                    <td>{{uname}}</td>
+
+
+                                    <td>
+                                        <a href=" {{url_for( 'accept_req',id=uid)}} " onclick="return confirm( ' Are you sure to Accept ? ') ">Accept
+            </td>
+             <td>
+                <a href="{{url_for( 'reject_req',id=uid)}} ">Reject
+            </td>
+                                </tr>
+                                {% endfor%}
+                                <!-- <tr class="alert " role="alert ">
+                                    <td>
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox ">
+										  <span class="checkmark "></span>
+										</label>
+                                    </td>
+                                    <td class="d-flex align-items-center ">
+                                        <div class="img " style="background-image: url(images/person_3.jpg); "></div>
+                                        <div class="pl-3 email ">
+                                            <span>larrybird@email.com</span>
+                                            <span>Added: 01/03/2020</span>
+                                        </div>
+                                    </td>
+                                    <td>Larry_bird</td>
+                                    <td class="status "><span class="active ">Active</span></td>
+                                    <td>
+                                        <button type="button " class="close " data-dismiss="alert " aria-label="Close ">
+				            	<span aria-hidden="true "><i class="fa fa-close "></i></span>
+				          	</button>
+                                    </td>
+                                </tr>
+                                <tr class="alert " role="alert ">
+                                    <td>
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox ">
+										  <span class="checkmark "></span>
+										</label>
+                                    </td>
+                                    <td class="d-flex align-items-center ">
+                                        <div class="img " style="background-image: url(images/person_4.jpg); "></div>
+                                        <div class="pl-3 email ">
+                                            <span>johndoe@email.com</span>
+                                            <span>Added: 01/03/2020</span>
+                                        </div>
+                                    </td>
+                                    <td>Johndoe1990</td>
+                                    <td class="status "><span class="active ">Active</span></td>
+                                    <td>
+                                        <button type="button " class="close " data-dismiss="alert " aria-label="Close ">
+				            	<span aria-hidden="true "><i class="fa fa-close "></i></span>
+				          	</button>
+                                    </td>
+                                </tr>
+                                <tr class="alert " role="alert ">
+                                    <td class="border-bottom-0 ">
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox ">
+										  <span class="checkmark "></span>
+										</label>
+                                    </td>
+                                    <td class="d-flex align-items-center border-bottom-0 ">
+                                        <div class="img " style="background-image: url(images/person_1.jpg); "></div>
+                                        <div class="pl-3 email ">
+                                            <span>garybird@email.com</span>
+                                            <span>Added: 01/03/2020</span>
+                                        </div>
+                                    </td>
+                                    <td class="border-bottom-0 ">Garybird_2020</td>
+                                    <td class="status border-bottom-0 "><span class="waiting ">Waiting for Resassignment</span></td>
+                                    <td class="border-bottom-0 ">
+                                        <button type="button " class="close " data-dismiss="alert " aria-label="Close ">
+				            	<span aria-hidden="true "><i class="fa fa-close "></i></span>
+				          	</button>
+                                    </td>
+                                </tr> -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+
+    <script src="js/jquery.min.js "></script>
+    <script src="js/popper.js "></script>
+    <script src="js/bootstrap.min.js "></script>
+    <script src="js/main.js "></script>
+
+</body>
+
+</html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Friend List </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,100,300,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+</head>
+
+<body>
+    <div>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="{{url_for('home')}}">SMedia</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{url_for('home')}}">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            Profile
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="/viewprofile">View Profile</a>
+                            <a class="dropdown-item" href="{{ url_for('editprofile')}}">Edit Profile</a>
+                            <a class="dropdown-item" href="{{ url_for('userchange')}}">Change Password</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pending_list">Friend List</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/accept_list">My Friend</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/send_req">Make Friends</a>
+                    </li>
+    
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for( 'sign_out') }}"><i class="fas fa-sign-out-alt"></i>
+                            Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <section class="ftco-section ">
+        <div class="container ">
+            <div class="row justify-content-center ">
+                <div class="col-md-6 text-center mb-5 ">
+                    <h2 class="heading-section ">Friend List</h2>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-md-12 ">
+                    <div class="table-wrap ">
+                        <table class="table table-responsive-xl ">
+                            <thead>
+                                <tr>
+                                    <!-- <th>&nbsp;</th> -->
+                                    <th>User</th>
+                                    <th>Username</th>
+                                    <th>Status</th>
+                                    <th>Remove Friends</th>
+
+
+                                    <!-- <th>&nbsp;</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- <tr class="alert " role="alert "> -->
+                                <!-- <td>
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox " checked>
+										  <span class="checkmark "></span>
+										</label>
+                                    </td> -->
+                                <!-- <td class="d-flex align-items-center ">
+                                    <div class="img " style="background-image: url({{ url_for( 'static',filename='userimages.jpg' )}}); "></div>
+                                    <div class="pl-3 email ">
+                                        <span>markotto@email.com</span>
+                                        <span>Added: 01/03/2020</span>
+                                    </div>
+                                </td>
+                                <td>Markotto89</td>
+                                <td class="status "><span class="active ">Active</span></td>
+                                <td>
+                                    <button type="button " class="close " data-dismiss="alert " aria-label="Close ">
+				            	<span aria-hidden="true "><i class="fa fa-close "></i></span>
+				          	</button>
+                                </td> -->
+                                </tr>
+                                {% for uid, user in requested_person.items() %}
+                                <tr class="alert " role="alert ">
+                                    <!-- <td>
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox ">
+										  <span class="checkmark "></span>
+										</label>
+                                    </td> -->
+                                    <td class="d-flex align-items-center ">
+                                        <div class="img " style="background-image: url({{ user[ 'profile_pic'] }}); "></div>
+                                        <div class="pl-3 email ">
+                                            <span>{{ user['username'].upper() }}</span>
+                                            <span>{{user['gender']}}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ user['username'] }}</td>
+                                    <td class="status "><span class="waiting ">{{ user['bio'] }}</span></td>
+                                    <td>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="window.location.href='/remove_friend/{{uid}}'">👉❌&nbsp&nbsp&nbsp
+                                            <!-- <span aria-hidden="true"><i class="fa fa-close"></i></span> -->
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor%}
+                                <!-- <tr class="alert " role="alert ">
+                                    <td>
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox ">
+										  <span class="checkmark "></span>
+										</label>
+                                    </td>
+                                    <td class="d-flex align-items-center ">
+                                        <div class="img " style="background-image: url(images/person_3.jpg); "></div>
+                                        <div class="pl-3 email ">
+                                            <span>larrybird@email.com</span>
+                                            <span>Added: 01/03/2020</span>
+                                        </div>
+                                    </td>
+                                    <td>Larry_bird</td>
+                                    <td class="status "><span class="active ">Active</span></td>
+                                    <td>
+                                        <button type="button " class="close " data-dismiss="alert " aria-label="Close ">
+				            	<span aria-hidden="true "><i class="fa fa-close "></i></span>
+				          	</button>
+                                    </td>
+                                </tr>
+                                <tr class="alert " role="alert ">
+                                    <td>
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox ">
+										  <span class="checkmark "></span>
+										</label>
+                                    </td>
+                                    <td class="d-flex align-items-center ">
+                                        <div class="img " style="background-image: url(images/person_4.jpg); "></div>
+                                        <div class="pl-3 email ">
+                                            <span>johndoe@email.com</span>
+                                            <span>Added: 01/03/2020</span>
+                                        </div>
+                                    </td>
+                                    <td>Johndoe1990</td>
+                                    <td class="status "><span class="active ">Active</span></td>
+                                    <td>
+                                        <button type="button " class="close " data-dismiss="alert " aria-label="Close ">
+				            	<span aria-hidden="true "><i class="fa fa-close "></i></span>
+				          	</button>
+                                    </td>
+                                </tr>
+                                <tr class="alert " role="alert ">
+                                    <td class="border-bottom-0 ">
+                                        <label class="checkbox-wrap checkbox-primary ">
+										  <input type="checkbox ">
+										  <span class="checkmark "></span>
+										</label>
+                                    </td>
+                                    <td class="d-flex align-items-center border-bottom-0 ">
+                                        <div class="img " style="background-image: url(images/person_1.jpg); "></div>
+                                        <div class="pl-3 email ">
+                                            <span>garybird@email.com</span>
+                                            <span>Added: 01/03/2020</span>
+                                        </div>
+                                    </td>
+                                    <td class="border-bottom-0 ">Garybird_2020</td>
+                                    <td class="status border-bottom-0 "><span class="waiting ">Waiting for Resassignment</span></td>
+                                    <td class="border-bottom-0 ">
+                                        <button type="button " class="close " data-dismiss="alert " aria-label="Close ">
+				            	<span aria-hidden="true "><i class="fa fa-close "></i></span>
+				          	</button>
+                                    </td>
+                                </tr> -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/jquery.min.js "></script>
+    <script src="js/popper.js "></script>
+    <script src="js/bootstrap.min.js "></script>
+    <script src="js/main.js "></script>
+
+</body>
+
+</html>

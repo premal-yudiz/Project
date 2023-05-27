@@ -9,6 +9,11 @@
 </head>
 
 <body>
+    <div>
+        <h3>{{b}} {% with messages = get_flashed_messages() %} {% if messages %} {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %} {% endif %} {% endwith %}</h3>
+    </div>
     <h1>Requsted Friend List</h1>
     <table border="1">
         <tr>
