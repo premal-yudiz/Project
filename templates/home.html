@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Friend List</title>
+    <title>SMedia</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
@@ -10,7 +10,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-    
+    <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
 </head>
 
 <body>
@@ -33,8 +33,8 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="/viewprofile">View Profile</a>
-                            <a class="dropdown-item" href="{{ url_for('editprofile')}}">Edit Profile</a>
-                            <a class="dropdown-item" href="{{ url_for('userchange')}}">Change Password</a>
+                            <a class="dropdown-item" href="{{ url_for('editprofile') }}">Edit Profile</a>
+                            <a class="dropdown-item" href="{{ url_for('userchange') }}">Change Password</a>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -48,31 +48,75 @@
                     </li>
 
                 </ul>
+                <form action="#">
+                    <div class="search-navbar ml-auto">
+                        <div class="input-group">
+                            <input type="text" id="search-input" class="form-control" placeholder="Search...">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-success" type="submit">🔎
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="autocomplete-list"></div>
+                    </div>
+                </form>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for( 'sign_out') }}"><i class="fas fa-sign-out-alt"></i>
+                        <a class="nav-link" href="{{ url_for('sign_out') }}"><i class="fas fa-sign-out-alt"></i>
                             Logout</a>
                     </li>
                 </ul>
+
+
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+                <script>
+                    $(function () {
+                        var availableTags = [
+                            {% for user in user %}
+                    "{{ user.username}}",
+                        {% endfor %}
+            ];
+
+                    $("#search-input").autocomplete({
+                        source: availableTags,
+                        select: function (event, ui) {
+                            // Handle selection logic here if needed
+                        },
+                        open: function (event, ui) {
+                            var term = $(this).val().toLowerCase();
+                            if (term.startsWith("p")) {
+                                var resultCount = ui.item.length;
+                                var message = resultCount + " resultsss are available, use up and down arrow keys to navigate.";
+                                $("#autocomplete-list").text(message);
+                            }
+                        }
+                    });
+        });
+                </script>
+
+
             </div>
         </nav>
-        <div class="container ">
-            <h3 style="color:red;">{{b}} {% with messages = get_flashed_messages() %} {% if messages %} {% for message
+        <div class="container">
+            <h3 style="color:red;">{{ b }} {% with messages = get_flashed_messages() %} {% if messages %} {% for message
                 in messages %}
                 <p>{{ message }}</p>
                 {% endfor %} {% endif %} {% endwith %}
             </h3>
         </div>
 
-        <div class="container ">
-            <h3>SMedia Plateform</h3>
+        <div class="container">
+            <h3>SMedia Platform</h3>
             {% if session %}
             <h1>Welcome {{ name }}!</h1>
             {% else %}
-            <h1>Welcome! Please Login First <a href="  {{ url_for('userlogin')}}  ">here.</a></h1>
+            <h1>Welcome! Please Login First <a href="{{ url_for('userlogin') }}">here.</a></h1>
             {% endif %}
         </div>
     </div>
+    <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
 </body>
 
 </html>

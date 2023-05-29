@@ -1,6 +1,7 @@
 from flask import Flask,redirect, render_template,request,url_for,session,flash
 from datetime import datetime
 import os
+from werkzeug.utils import secure_filename
 from os.path import join
 from flask_mail import Mail,Message
 from flask_sqlalchemy import SQLAlchemy
@@ -192,28 +193,28 @@ def viewprofile():
 
 @app.route('/home',methods=['POST', 'GET'])
 def home():
+    user = User.query.all()
     if 'name' in session:
         name = session['name']
-        return render_template('home.html', name=name)
+        return render_template('home.html', name=name,user=user)
     else:
         return redirect(url_for('userlogin'))
 
-
-@app.route('/editprofile', methods=['POST','GET'])
+@app.route('/editprofile', methods=['POST', 'GET'])
 @login_required
 def editprofile():
-   id=session['s_id']
-   user = User_profile.query.filter_by(u_id=int(id)).first()
-   if request.method=='POST':
-      user.profile_pic = request.files['profile_pic']
-      user.bio = request.form['bio']     
-      filename=secure_filename(user.profile_pic.filename)
-      user.profile_pic.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
-      user.profile_pic=app.config['UPLOAD_FOLDER']+filename
-      db.session.commit()
-      return redirect(url_for('viewprofile'))
-   return render_template('editprofile.html', user=user)
-
+    id = session['s_id']
+    user = User_profile.query.filter_by(u_id=int(id)).first()
+    if request.method == 'POST':
+        user.bio = request.form['bio']
+        profile_pic = request.files['profile_pic']
+        if profile_pic:
+            filename = secure_filename(profile_pic.filename)
+            profile_pic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            user.profile_pic = app.config['UPLOAD_FOLDER'] + filename
+        db.session.commit()
+        return redirect(url_for('viewprofile'))
+    return render_template('editprofile.html', user=user)
 @app.route('/sign_out', methods=["GET", "POST"])
 
 def sign_out():
