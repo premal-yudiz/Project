@@ -83,6 +83,7 @@ def userlogin():
                     session['logged_in'] = True
                     return redirect(url_for('home'))
                 else:
+                    # flash ("please enter correct password")
                     return "please enter correct password"
             else:
                 return "please register first"   
