@@ -48,6 +48,7 @@
                     </li>
 
                 </ul>
+                &nbsp
                 <form action="#">
                     <div class="search-navbar ml-auto">
                         <div class="input-group">
@@ -75,9 +76,10 @@
                     $(function () {
                         var availableTags = [
                             {% for user in user %}
-                    "{{ user.username}}",
-                        {% endfor %}
-            ];
+                                "{{ user.username,user.user_id}}",
+                                // "{{ user.user_id}}",
+                            {% endfor %}
+                        ];
 
                     $("#search-input").autocomplete({
                         source: availableTags,
